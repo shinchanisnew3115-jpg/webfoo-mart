@@ -15,16 +15,16 @@ export interface Store {
   items: Item[];
 }
 
-// Admin UI ke exact variables ke sath Order Interface
+// Order interface mein 'PACKED' add kiya gaya hai
 export interface Order {
   id: string;
-  customer: string;   // Pehle customerName tha
-  phone: string;      // Naya added
-  landmark: string;   // Naya added
+  customer: string;
+  phone: string;
+  landmark: string;
   items: string[];
-  amount: number;     // Store total
-  status: 'Pending' | 'Shipped' | 'Delivered';
-  time: string;       // Store timestamp
+  amount: number;
+  status: 'Pending' | 'PACKED' | 'Shipped' | 'Delivered'; // Yahan PACKED add kiya
+  time: string;
 }
 
 interface AppState {
