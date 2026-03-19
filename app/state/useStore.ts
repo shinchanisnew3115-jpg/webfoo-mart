@@ -1,3 +1,4 @@
+"use client"
 import { create } from 'zustand';
 
 export interface Item {
@@ -14,13 +15,25 @@ export interface Store {
   items: Item[];
 }
 
+// Order interface jo Admin panel ko chahiye
+export interface Order {
+  id: string;
+  customerName: string;
+  items: string[];
+  total: number;
+  status: 'Pending' | 'Shipped' | 'Delivered';
+  timestamp: string;
+}
+
 interface AppState {
   stores: Store[];
   cart: { item: Item; quantity: number }[];
   isLoggedIn: boolean;
   currentUser: { name: string; address: string } | null;
+  orders: Order[]; // Naya: Admin ke liye
   login: (name: string, address: string) => void;
   addToCart: (item: Item) => void;
+  updateOrderStatus: (orderId: string, status: Order['status']) => void; // Naya: Admin action
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -37,6 +50,12 @@ export const useStore = create<AppState>((set) => ({
   cart: [],
   isLoggedIn: false,
   currentUser: null,
+  orders: [ // Dummy orders taaki admin page khali na dikhe
+    { id: "ORD001", customerName: "Vineet", items: ["Milk"], total: 33, status: 'Pending', timestamp: new Date().toLocaleString() }
+  ],
   login: (name, address) => set({ isLoggedIn: true, currentUser: { name, address } }),
   addToCart: (item) => set((state) => ({ cart: [...state.cart, { item, quantity: 1 }] })),
+  updateOrderStatus: (orderId, status) => set((state) => ({
+    orders: state.orders.map(o => o.id === orderId ? { ...o, status } : o)
+  })),
 }));
