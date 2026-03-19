@@ -2,40 +2,24 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type User = {
-  name: string;
-  phone: string;
-  password: string;
-  address?: string;
-  landmark?: string;
-  pincode?: string;
+  name: string; phone: string; password: string;
+  address?: string; landmark?: string; pincode?: string;
 };
 
 export type Item = {
-  id: number;
-  name: string;
-  price: number;
-  discount: number;
-  isOutOfStock: boolean;
-  quantity?: number;
+  id: number; name: string; price: number;
+  discount: number; isOutOfStock: boolean; quantity?: number;
 };
 
 export type Store = {
-  id: string;
-  name: string;
-  logo: string;
-  category: string;
-  items: Item[];
+  id: string; name: string; logo: string;
+  category: string; items: Item[];
 };
 
 export type Order = {
-  id: string;
-  customer: string;
-  phone: string;
-  address: string;
-  landmark: string;
-  items: string; 
-  amount: number;
-  time: string;
+  id: string; customer: string; phone: string;
+  address: string; landmark: string; items: string; 
+  amount: number; time: string;
   status: 'PENDING' | 'PACKED' | 'DELIVERED';
 };
 
@@ -51,34 +35,30 @@ const initialStores: Store[] = [
 ];
 
 interface AppState {
-  stores: Store[];
-  orders: Order[];
-  cart: Item[];
-  users: User[];
-  currentUser: User | null;
-  isLoggedIn: boolean;
+  stores: Store[]; orders: Order[]; cart: Item[];
+  users: User[]; currentUser: User | null; isLoggedIn: boolean;
 
+  // ACTIONS (Inko dhyan se check karo, ab saare yahan hain)
   registerUser: (newUser: User) => void;
   loginUser: (phone: string, pass: string) => boolean;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
+  addStore: (newStore: Store) => void;
+  addItem: (storeId: string, newItem: { name: string; price: number; discount: number }) => void;
+  toggleStock: (storeId: string, itemId: number) => void;
+  updateValue: (storeId: string, itemId: number, key: 'price' | 'discount', value: number) => void;
   addToCart: (item: Item) => void;
   removeFromCart: (itemId: number) => void;
   updateCartQuantity: (itemId: number, delta: number) => void;
   clearCart: () => void;
   placeOrder: (order: Order) => void;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void; // FIX: Added back
+  updateOrderStatus: (orderId: string, status: Order['status']) => void;
 }
 
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
-      stores: initialStores,
-      orders: [],
-      cart: [],
-      users: [],
-      currentUser: null,
-      isLoggedIn: false,
+      stores: initialStores, orders: [], cart: [], users: [], currentUser: null, isLoggedIn: false,
 
       registerUser: (newUser) => set((state) => ({ users: [...state.users, newUser] })),
       loginUser: (phone, pass) => {
@@ -92,6 +72,20 @@ export const useStore = create<AppState>()(
         return { currentUser: updatedUser, users: updatedUsers };
       }),
       logout: () => set({ isLoggedIn: false, currentUser: null, cart: [] }),
+      
+      // ADMIN ACTIONS
+      addStore: (newStore) => set((state) => ({ stores: [...state.stores, newStore] })),
+      addItem: (storeId, newItem) => set((state) => ({
+        stores: state.stores.map(s => s.id === storeId ? { ...s, items: [...s.items, { ...newItem, id: Date.now(), isOutOfStock: false }] } : s)
+      })),
+      toggleStock: (storeId, itemId) => set((state) => ({
+        stores: state.stores.map(s => s.id === storeId ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, isOutOfStock: !i.isOutOfStock } : i) } : s)
+      })),
+      updateValue: (storeId, itemId, key, value) => set((state) => ({
+        stores: state.stores.map(s => s.id === storeId ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, [key]: value } : i) } : s)
+      })),
+
+      // CART & ORDER ACTIONS
       addToCart: (item) => set((state) => {
         const existing = state.cart.find(i => i.id === item.id);
         if (existing) return { cart: state.cart.map(i => i.id === item.id ? { ...i, quantity: (i.quantity || 1) + 1 } : i) };
@@ -107,6 +101,6 @@ export const useStore = create<AppState>()(
         orders: state.orders.map(order => order.id === orderId ? { ...order, status } : order)
       })),
     }),
-    { name: 'webfoo-master-data-v3' }
+    { name: 'webfoo-master-final-v4' } // Version change for clean refresh
   )
 );
