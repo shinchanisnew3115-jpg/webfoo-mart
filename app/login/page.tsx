@@ -1,96 +1,102 @@
-"use client";
-import { useState } from 'react';
-import { useStore } from '../state/useStore';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Navbar from '../components/Navbar';
+"use client"
 
-export default function Login() {
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const { loginUser } = useStore();
-  const router = useRouter();
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
+import { useStore } from "../state/useStore" // Tera purana store
+
+export default function LoginPage() {
+  const router = useRouter()
+  const { login } = useStore() // useStore ka login function
+  const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({ email: "", password: "" })
 
   const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginUser(phone, password)) {
-      router.push('/');
+    e.preventDefault()
+    // Dummy login logic jo useStore se connected hai
+    if (formData.email && formData.password) {
+      login(formData.email, "User") // Store mein user save hoga
+      router.push("/") // Seedha Home Page par bhej dega
     } else {
-      alert("Invalid Phone or Password! ❌");
+      alert("Bhai details toh bharo!")
     }
-  };
+  }
 
   return (
-    <div className="bg-black min-h-screen text-white flex flex-col items-center justify-center p-6">
-      <Navbar />
-      
-      <div className="w-full max-w-md bg-neutral-900 border border-white/5 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden mt-20">
-        <div className="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full"></div>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+      {/* Logo Section */}
+      <div className="mb-8 flex flex-col items-center">
+        <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-cyan-500 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.3)] mb-4">
+          <div className="text-black text-4xl font-bold">✨</div>
+        </div>
+        <h1 className="text-3xl font-black tracking-tighter">
+          WEBFOO<span className="text-green-400">MART</span>
+        </h1>
+        <p className="text-gray-500 text-sm mt-2 font-medium">Lightning-fast campus delivery</p>
+      </div>
 
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-black uppercase tracking-tighter italic">Welcome <span className="text-cyan-500">Back</span></h2>
-          <p className="text-[9px] font-black text-gray-500 tracking-[0.4em] uppercase mt-2 italic">WebFoo Marketplace Access</p>
+      {/* Form Section */}
+      <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4">
+        <div className="relative">
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <input
+            type="email"
+            placeholder="Email address"
+            className="w-full bg-neutral-900 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm focus:border-green-400 outline-none transition-all"
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+          />
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Phone Number</label>
-            <input 
-              required type="tel" placeholder="9876543210" 
-              value={phone} onChange={(e) => setPhone(e.target.value)}
-              className="w-full bg-black border border-white/10 p-5 rounded-2xl font-black outline-none focus:border-cyan-500 transition-all placeholder:text-gray-800"
-            />
-          </div>
-
-          <div className="space-y-2 relative">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Password</label>
-            <div className="relative">
-              <input 
-                required 
-                type={showPassword ? "text" : "password"} 
-                placeholder="••••••••" 
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black border border-white/10 p-5 rounded-2xl font-black outline-none focus:border-cyan-500 transition-all placeholder:text-gray-800 pr-14"
-              />
-              
-              {/* PROFESSIONAL SVG EYE BUTTON */}
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-cyan-500 transition-colors focus:outline-none p-1"
-              >
-                {showPassword ? (
-                  /* EYE OFF ICON */
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                  </svg>
-                ) : (
-                  /* EYE OPEN ICON */
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-
+        <div className="relative">
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="w-full bg-neutral-900 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-sm focus:border-green-400 outline-none transition-all"
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
+          />
           <button 
-            type="submit"
-            className="w-full bg-cyan-500 text-black p-6 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[11px] hover:bg-white transition-all shadow-xl shadow-cyan-500/10 active:scale-95 mt-4"
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
           >
-            Get Access
+            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
-        </form>
+        </div>
 
-        <div className="mt-10 text-center">
-          <p className="text-gray-600 text-[10px] font-black uppercase tracking-widest mb-4 italic">No account?</p>
-          <Link href="/register" className="text-white font-black uppercase tracking-widest text-[11px] hover:text-cyan-500 transition-colors border-b border-white/10 pb-1">
-            Create Profile →
-          </Link>
+        <div className="text-right">
+          <button type="button" className="text-xs font-bold text-cyan-400">Forgot password?</button>
+        </div>
+
+        <button 
+          type="submit"
+          className="w-full bg-gradient-to-r from-green-400 to-cyan-500 text-black font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all active:scale-95"
+        >
+          SIGN IN <ArrowRight className="w-5 h-5" />
+        </button>
+      </form>
+
+      {/* Social Login */}
+      <div className="w-full max-w-sm mt-8">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="h-px bg-white/10 flex-1" />
+          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Or continue with</span>
+          <div className="h-px bg-white/10 flex-1" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <button className="flex items-center justify-center gap-2 bg-neutral-900 border border-white/5 py-3 rounded-2xl hover:bg-neutral-800 transition-all font-bold text-sm">
+            <span>G</span> Google
+          </button>
+          <button className="flex items-center justify-center gap-2 bg-neutral-900 border border-white/5 py-3 rounded-2xl hover:bg-neutral-800 transition-all font-bold text-sm">
+            <span>f</span> Facebook
+          </button>
         </div>
       </div>
+
+      <p className="mt-8 text-sm text-gray-500">
+        Don't have an account? <span className="text-cyan-400 font-bold cursor-pointer">Sign up</span>
+      </p>
     </div>
-  );
+  )
 }
