@@ -15,14 +15,16 @@ export interface Store {
   items: Item[];
 }
 
-// Admin UI ke hisab se Order Interface
+// Admin UI ke exact variables ke sath Order Interface
 export interface Order {
   id: string;
-  customerName: string;
+  customer: string;   // Pehle customerName tha
+  phone: string;      // Naya added
+  landmark: string;   // Naya added
   items: string[];
-  amount: number; // Yahan 'total' ko 'amount' kar diya
+  amount: number;     // Store total
   status: 'Pending' | 'Shipped' | 'Delivered';
-  time: string;   // Yahan 'timestamp' ko 'time' kar diya
+  time: string;       // Store timestamp
 }
 
 interface AppState {
@@ -53,7 +55,9 @@ export const useStore = create<AppState>((set) => ({
   orders: [ 
     { 
       id: "WF-8821", 
-      customerName: "Vineet", 
+      customer: "Vineet Kumar", 
+      phone: "9876543210",
+      landmark: "Near Campus Gate No. 2",
       items: ["Milk", "Atta"], 
       amount: 283, 
       status: 'Pending', 
