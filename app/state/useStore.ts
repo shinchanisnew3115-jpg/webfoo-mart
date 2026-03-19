@@ -1,6 +1,7 @@
 "use client"
 import { create } from 'zustand';
 
+// --- TYPES ---
 export interface Item {
   id: number;
   name: string;
@@ -26,22 +27,27 @@ export interface Order {
   time: string;
 }
 
+// --- INTERFACE (Isme saare missing functions hain) ---
 interface AppState {
   stores: Store[];
   cart: { item: Item; quantity: number }[];
   isLoggedIn: boolean;
   currentUser: { name: string; address: string } | null;
   orders: Order[];
+  
+  // Basic Actions
   login: (name: string, address: string) => void;
   addToCart: (item: Item) => void;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
-  // --- ADMIN FUNCTIONS ADDED ---
+  
+  // Admin Actions (Jo error de rahe the)
   addStore: (name: string) => void;
   addItem: (storeId: number, item: Omit<Item, 'id'>) => void;
   toggleStock: (storeId: number, itemId: number) => void;
   updateValue: (storeId: number, itemId: number, field: keyof Item, value: any) => void;
 }
 
+// --- STORE IMPLEMENTATION ---
 export const useStore = create<AppState>((set) => ({
   stores: [
     {
@@ -56,18 +62,7 @@ export const useStore = create<AppState>((set) => ({
   cart: [],
   isLoggedIn: false,
   currentUser: null,
-  orders: [
-    { 
-      id: "WF-8821", 
-      customer: "Vineet Kumar", 
-      phone: "9876543210", 
-      landmark: "Campus Gate", 
-      items: ["Milk"], 
-      amount: 33, 
-      status: 'Pending', 
-      time: "11:45 PM" 
-    }
-  ],
+  orders: [],
 
   login: (name, address) => set({ isLoggedIn: true, currentUser: { name, address } }),
   
@@ -77,7 +72,7 @@ export const useStore = create<AppState>((set) => ({
     orders: state.orders.map(o => o.id === orderId ? { ...o, status } : o)
   })),
 
-  // --- ADMIN LOGIC IMPLEMENTATION ---
+  // Admin Logic
   addStore: (name) => set((state) => ({
     stores: [...state.stores, { id: Date.now(), name, items: [] }]
   })),
