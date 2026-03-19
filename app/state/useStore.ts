@@ -1,7 +1,6 @@
 "use client"
 import { create } from 'zustand';
 
-// --- TYPES ---
 export interface Item {
   id: number;
   name: string;
@@ -27,38 +26,25 @@ export interface Order {
   time: string;
 }
 
-// --- INTERFACE (Isme saare missing functions hain) ---
 interface AppState {
   stores: Store[];
-  cart: { item: Item; quantity: number }[];
+  cart: { id: number; name: string; price: number; quantity: number }[];
   isLoggedIn: boolean;
   currentUser: { name: string; address: string } | null;
   orders: Order[];
-  
-  // Basic Actions
   login: (name: string, address: string) => void;
   addToCart: (item: Item) => void;
+  removeFromCart: (itemId: number) => void;
+  updateCartQuantity: (itemId: number, quantity: number) => void;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
-  
-  // Admin Actions (Jo error de rahe the)
   addStore: (name: string) => void;
   addItem: (storeId: number, item: Omit<Item, 'id'>) => void;
   toggleStock: (storeId: number, itemId: number) => void;
   updateValue: (storeId: number, itemId: number, field: keyof Item, value: any) => void;
 }
 
-// --- STORE IMPLEMENTATION ---
 export const useStore = create<AppState>((set) => ({
-  stores: [
-    {
-      id: 1,
-      name: "WebFoo Grocery",
-      items: [
-        { id: 101, name: "Aashirvaad Atta 5kg", price: 250, discount: 20, isOutOfStock: false },
-        { id: 102, name: "Amul Gold Milk 500ml", price: 33, discount: 0, isOutOfStock: false },
-      ],
-    },
-  ],
+  stores: [{ id: 1, name: "WebFoo Grocery", items: [] }],
   cart: [],
   isLoggedIn: false,
   currentUser: null,
@@ -66,32 +52,37 @@ export const useStore = create<AppState>((set) => ({
 
   login: (name, address) => set({ isLoggedIn: true, currentUser: { name, address } }),
   
-  addToCart: (item) => set((state) => ({ cart: [...state.cart, { item, quantity: 1 }] })),
-  
+  addToCart: (item) => set((state) => {
+    const existing = state.cart.find(i => i.id === item.id);
+    if (existing) {
+      return { cart: state.cart.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i) };
+    }
+    return { cart: [...state.cart, { id: item.id, name: item.name, price: item.price, quantity: 1 }] };
+  }),
+
+  removeFromCart: (itemId) => set((state) => ({
+    cart: state.cart.filter(i => i.id !== itemId)
+  })),
+
+  updateCartQuantity: (itemId, quantity) => set((state) => ({
+    cart: state.cart.map(i => i.id === itemId ? { ...i, quantity: Math.max(1, quantity) } : i)
+  })),
+
   updateOrderStatus: (orderId, status) => set((state) => ({
     orders: state.orders.map(o => o.id === orderId ? { ...o, status } : o)
   })),
 
-  // Admin Logic
-  addStore: (name) => set((state) => ({
-    stores: [...state.stores, { id: Date.now(), name, items: [] }]
-  })),
+  addStore: (name) => set((state) => ({ stores: [...state.stores, { id: Date.now(), name, items: [] }] })),
 
   addItem: (storeId, newItem) => set((state) => ({
-    stores: state.stores.map(s => s.id === storeId 
-      ? { ...s, items: [...s.items, { ...newItem, id: Date.now() }] } 
-      : s)
+    stores: state.stores.map(s => s.id === storeId ? { ...s, items: [...s.items, { ...newItem, id: Date.now() }] } : s)
   })),
 
   toggleStock: (storeId, itemId) => set((state) => ({
-    stores: state.stores.map(s => s.id === storeId 
-      ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, isOutOfStock: !i.isOutOfStock } : i) } 
-      : s)
+    stores: state.stores.map(s => s.id === storeId ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, isOutOfStock: !i.isOutOfStock } : i) } : s)
   })),
 
   updateValue: (storeId, itemId, field, value) => set((state) => ({
-    stores: state.stores.map(s => s.id === storeId 
-      ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, [field]: value } : i) } 
-      : s)
+    stores: state.stores.map(s => s.id === storeId ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, [field]: value } : i) } : s)
   })),
 }));
