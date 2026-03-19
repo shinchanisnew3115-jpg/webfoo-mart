@@ -15,14 +15,14 @@ export interface Store {
   items: Item[];
 }
 
-// Order interface jo Admin panel ko chahiye
+// Admin UI ke hisab se Order Interface
 export interface Order {
   id: string;
   customerName: string;
   items: string[];
-  total: number;
+  amount: number; // Yahan 'total' ko 'amount' kar diya
   status: 'Pending' | 'Shipped' | 'Delivered';
-  timestamp: string;
+  time: string;   // Yahan 'timestamp' ko 'time' kar diya
 }
 
 interface AppState {
@@ -30,10 +30,10 @@ interface AppState {
   cart: { item: Item; quantity: number }[];
   isLoggedIn: boolean;
   currentUser: { name: string; address: string } | null;
-  orders: Order[]; // Naya: Admin ke liye
+  orders: Order[]; 
   login: (name: string, address: string) => void;
   addToCart: (item: Item) => void;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void; // Naya: Admin action
+  updateOrderStatus: (orderId: string, status: Order['status']) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -50,8 +50,15 @@ export const useStore = create<AppState>((set) => ({
   cart: [],
   isLoggedIn: false,
   currentUser: null,
-  orders: [ // Dummy orders taaki admin page khali na dikhe
-    { id: "ORD001", customerName: "Vineet", items: ["Milk"], total: 33, status: 'Pending', timestamp: new Date().toLocaleString() }
+  orders: [ 
+    { 
+      id: "WF-8821", 
+      customerName: "Vineet", 
+      items: ["Milk", "Atta"], 
+      amount: 283, 
+      status: 'Pending', 
+      time: "11:45 PM" 
+    }
   ],
   login: (name, address) => set({ isLoggedIn: true, currentUser: { name, address } }),
   addToCart: (item) => set((state) => ({ cart: [...state.cart, { item, quantity: 1 }] })),
